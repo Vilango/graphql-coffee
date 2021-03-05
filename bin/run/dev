@@ -1,0 +1,186 @@
+#!/bin/bash
+echo ""
+startString=""
+function appName(){
+  appSymbol=$1
+  case "$appSymbol" in
+  t)  echo "startMeteorTests"
+      ;;
+  r)  echo "startMeteorTestapp"
+      ;;
+  c)  echo "startCypress"
+      ;;
+  s)  echo "startCypressOrderStatus"
+      ;;
+  o) echo "startOrderStatusScript"
+      ;;
+  m) echo "startMeteor"
+      ;;
+  w) echo "startWorker"
+      ;;
+  *) echo "Unknown appSymbol: $1 is ignored" >&2
+      ;;
+  esac
+
+}
+if [ $# -eq 0 ]
+  then
+    echo "No arguments supplied - Starting all services "
+    echo "  t -> startMeteorTests"
+    echo "  r -> startMeteorTestapp - (Resolver tests)"
+    echo "  c -> startCypress"
+    echo "  s -> startCypressOrderStatus"
+    echo "  m -> startMeteor"
+    echo "  o -> startOrderStatusScript"
+    echo "  w -> startWorker"
+
+    startString="startMeteorTests & startMeteor"
+  else
+    # echo "Arguments supplied: $1"
+    apps=$1
+    for (( i=0; i<${#apps}; i++ )); do
+      curVal=$(appName ${apps:$i:1})
+
+      if [ -n "$curVal" ]
+      then
+        if ((i>=1))
+        then
+          startString="$startString & $curVal"
+        else
+          startString="$curVal"
+        fi
+      fi
+    done
+fi
+echo "Starting: $startString"
+echo ""
+echo "##############################"
+echo ""
+
+if [[ -f config/development/settings.sh && -f config/development/settings.json ]]
+then
+  echo "# Required config files found!"
+else
+  echo "# Config files are missing. Please check the README.md for details"
+  echo "#  config/development/settings.sh"
+  echo "#  config/development/settings.json"
+  echo ""
+  exit 1
+fi
+
+function startMeteor() {
+  echo "startMeteor()"
+  echo $MYPATH/config/development/settings.json
+  cat $MYPATH/config/development/settings.json
+  cd $MYPATH/app && meteor yarn install
+  cd $MYPATH/app && meteor "$@" --settings $MYPATH/config/development/settings.json --no-release-check # --production #--verbose 
+}
+function startOrderStatusScript() {
+  echo "startOrderStatusScript()"
+  cd $MYPATH/app-script-orderstatus && yarn install
+  cd $MYPATH/app-script-orderstatus && yarn dev
+}
+function startWorker() {
+  echo "startWorker()"
+  echo $MYPATH/config/development/settings.worker.json
+  cat $MYPATH/config/development/settings.worker.json
+  cd $MYPATH/app && meteor yarn install
+  cd $MYPATH/app && meteor yarn create_worker_settings
+  cd $MYPATH/app && MONGO_URL=mongodb://localhost:3001/meteor METEOR_LOCAL_DIR=.meteor-worker/local meteor "$@" --settings $MYPATH/config/development/settings.worker.merged.json --port 3005 --no-release-check # --production #--verbose 
+}
+function startMeteorTests() {
+  echo "startMeteorTests()"
+  export ROOT_URL=""
+  cd $MYPATH/app && meteor yarn install
+  cd $MYPATH/app && meteor yarn test --no-release-check #--verbose #--settings $MYPATH/config/testing/settings.json 
+}
+
+function startMeteorTestapp() {
+  echo "startMeteorTestapp()"
+  export ROOT_URL=""
+  cd $MYPATH/testing && meteor yarn install
+  cd $MYPATH/app && meteor yarn install
+  cd $MYPATH/app && meteor yarn testapp --no-release-check #--verbose #--settings $MYPATH/config/testing/settings.json 
+}
+
+function startCypress() {
+  echo "startCypress()"
+  cd $MYPATH/testing && meteor yarn install
+
+  echo "  cd $MYPATH/testing && meteor yarn cypress:open"
+  osascript -e \
+  "tell app \"Terminal\"
+    do script \"cd $MYPATH/testing && meteor yarn run cypress:open\"
+  end tell" &
+  export ROOT_URL=""
+  cd $MYPATH/testing && meteor yarn start-server
+}
+function startCypressOrderStatus() {
+  echo "startCypressOrderStatus()"
+  cd $MYPATH/testing && meteor yarn install
+
+  echo "  cd $MYPATH/testing && meteor yarn cypress:orderStatus:open"
+  osascript -e \
+  "tell app \"Terminal\"
+    do script \"cd $MYPATH/testing && meteor yarn run cypress:orderStatus:open\"
+  end tell" &
+  export ROOT_URL=""
+  cd $MYPATH/testing && meteor yarn start-server:3060
+}
+
+
+
+# function startCypress() {
+#   echo "startCypress()"
+#   # cd $MYPATH/testing/e2e && meteor yarn install
+
+#   echo "  cd $MYPATH/testing/e2e && meteor yarn cypress:open"
+#   osascript -e \
+#   "tell app \"Terminal\"
+#     do script \"cd $MYPATH/testing/e2e && meteor yarn run cypress:open\"
+#   end tell" &
+#   cd $MYPATH/testing/e2e && meteor yarn start-server
+# }
+# function startTestResolver() {
+#   echo "startCypress()"
+#   cd $MYPATH/testing/resolver && meteor yarn install
+#   cd $MYPATH/app && TEST_CLIENT=0 meteor yarn app-tests
+# }
+
+
+function checkYarn() {
+  cd $MYPATH/app && meteor yarn 2> /dev/null
+  if [ $? -eq 0  ]; then
+    echo "# yarn installed :)"
+  else
+    echo "# installing yarn"
+    cd $MYPATH/app && meteor npm --quiet ---silent  install yarn -g
+  fi
+  cd $MYPATH/app && meteor yarn 2> /dev/null
+  if [ $? -ne 0  ]; then
+    echo "# meteor yarn install failed "
+    exit
+  fi
+
+}
+
+
+MYPATH=$(pwd)
+
+echo "# Sourcing ./bin/env/development.sh as environment …"
+source ./config/development/settings.sh
+
+echo ""
+echo "##############################"
+echo "# ADDR $ADDR"
+echo "# Update dependencies ..."
+checkYarn
+
+export ROOT_URL="$ADDR"
+export DEBUG=Rollbar:*
+echo ""
+echo "##############################"
+echo "#  Running meteor: "
+
+#(trap 'kill 0' SIGINT;  startTests & startCypress & startAlfaOauth & startMeteor)
+(trap 'kill 0' SIGINT;  eval $startString)

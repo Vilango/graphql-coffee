@@ -1,0 +1,32 @@
+{
+  "overwrite": true,
+  "federation": false,
+  "generates": {
+    "imports/gen/graphql.ts": {
+      "schema": ["server/schema.*"],
+      "documents": [
+        "imports/ui/**/*.tsx",
+        "imports/{ui,microservices}/**/*.fragment.ts"
+      ],
+      "plugins": [
+        "typescript",
+        "typescript-react-apollo",
+        "typescript-resolvers",
+        "typescript-operations"
+      ],
+      "config": {
+        "preResolveTypes": false,
+        "reactApolloVersion": 3,
+        "federation": true,
+        "withHOC": false,
+        "withComponent": false,
+        "withHooks": true,
+        "withMutationFn": true,
+        "namingConvention": {
+          "enumValues": "change-case#upperCase"
+        },
+        "gqlImport": "@apollo/client#gql"
+      }
+    }
+  }
+}

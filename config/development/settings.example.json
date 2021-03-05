@@ -1,0 +1,6 @@
+{
+  "public": {
+    "env": "development",
+    "appName": "Coffee Shop"
+  }
+}

@@ -61,7 +61,7 @@ Meteor.methods({
     const to = email;
 
     const from = "cafe@vilango.com";
-    const subject = "Welcome to the GraphQL Cafe - powered by OWL!";
+    const subject = "Welcome to the GraphQL Cafe ☕ - powered by OWL";
 
     const url = Meteor.absoluteUrl("/graphql");
     const text = `Hi 👋,

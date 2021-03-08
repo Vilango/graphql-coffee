@@ -57,7 +57,8 @@ Meteor.methods({
     const subject = 'Welcome to the GraphQL Cafe - powered by OWL!';
 
 
-    const url = "https://owl--graphql-cafe.ognaliv.com"
+    // const url = "https://owl--graphql-cafe.ognaliv.com"
+    const url = Meteor.absoluteUrl("/graphql");
     const text = 
 `Hi, 
 here you got the token: 
@@ -66,8 +67,6 @@ ${ut?.token}
 Now go to ${url}
 and have fun :)
 `;
-  
-
 
     Email.send({ to, from, subject, text });
 

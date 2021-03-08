@@ -10,7 +10,12 @@ export const RecentOrders = () => {
   const { isLoading, recentOrders } = useTracker(() => {
     const subscription = Meteor.subscribe("recentOrders");
 
-    const recentOrders = OrdersCollection.find({}).fetch();
+    const recentOrders = OrdersCollection.find(
+      {},
+      {
+        sort: { createdAt: -1 },
+      }
+    ).fetch();
     const isLoading = !subscription.ready();
     console.log("-", isLoading, recentOrders);
     return { isLoading, recentOrders };
@@ -27,7 +32,7 @@ export const RecentOrders = () => {
       {recentOrders?.map((o) => {
         return (
           <div key={o._id}>
-            {o.beverage} | {o.email} - {moment(o.createdAt).fromNow()}
+            {o.beverage} ordered by  {o.email} - {moment(o.createdAt).fromNow()}
           </div>
         );
       })}
@@ -36,7 +41,7 @@ export const RecentOrders = () => {
 
   return (
     <div>
-      <h2>{toggle ? "☕" : "🔥" } Recent orders</h2>
+      <h2>{toggle ? "☕" : "🔥"} Recent orders</h2>
       {isLoading ? Loading : RecentOrders}
     </div>
   );

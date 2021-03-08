@@ -74,7 +74,7 @@ and have fun :)
   },
 });
 
-const anonymizeEmail = (email: string): string => {
+export const anonymizeEmail = (email: string): string => {
   const aEmail = email.replace(/(.{2})(.*)(?=@)/, function (gp1, gp2, gp3) {
     for (let i = 0; i < gp3.length; i++) {
       gp2 += "*";

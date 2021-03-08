@@ -1,6 +1,7 @@
 import { ApolloError } from "apollo-server-errors";
 import { Meteor } from "meteor/meteor";
 import moment from "moment";
+import { anonymizeEmail } from "../main";
 import { OrdersCollection } from "/imports/api/orders";
 import { UsertokensCollection } from "/imports/api/usertokens";
 
@@ -10,6 +11,10 @@ const recentOrders = () => {
     {
       limit: 30,
       sort: { createdAt: -1 },
+      transform: function (doc) {
+        doc.email = anonymizeEmail(doc.email);
+        return doc;
+      }
     }
   ).fetch();
 

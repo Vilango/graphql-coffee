@@ -9,6 +9,7 @@ export const schema = gql`
     orderBeverage(input: OrderBeverageInput): OrderBeveragePayload
   }
 
+
   enum BeverageEnum {
     MOCCA
     CAPUCCINO

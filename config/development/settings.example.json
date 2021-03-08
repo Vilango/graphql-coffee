@@ -1,6 +1,6 @@
 {
   "public": {
     "env": "development",
-    "appName": "Coffee Shop"
+    "appName": "GraphQL Cafe"
   }
 }

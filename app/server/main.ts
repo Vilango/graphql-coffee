@@ -11,6 +11,7 @@ import { OrdersCollection } from "/imports/api/orders";
 
 import "./apollo-server";
 import { Email } from "meteor/email";
+import { validateEmail } from "/imports/common";
 
 // Meteor.startup(() => {
 //   // If the Links collection is empty, add some data.
@@ -32,6 +33,13 @@ Meteor.methods({
   requestTokenWithEmail(email) {
     check(email, String);
 
+
+    const isValidEmail = validateEmail(email);
+
+    if (!isValidEmail) {
+      throw new Meteor.Error("notAValidEmail", "You did not provide a valid email:"+email);
+    }
+
     console.log("Juhu", email);
 
     let ut = UsertokensCollection.findOne({ email });
@@ -50,22 +58,24 @@ Meteor.methods({
       ut = UsertokensCollection.findOne({ _id: utId });
     }
 
-
     const to = email;
 
-    const from  = "cafe@ognaliv.com";
-    const subject = 'Welcome to the GraphQL Cafe - powered by OWL!';
+    const from = "cafe@vilango.com";
+    const subject = "Welcome to the GraphQL Cafe - powered by OWL!";
 
-
-    // const url = "https://owl--graphql-cafe.ognaliv.com"
     const url = Meteor.absoluteUrl("/graphql");
-    const text = 
-`Hi, 
-here you got the token: 
+    const text = `Hi 👋,
+
+here is your usertoken: 
 ${ut?.token}
 
 Now go to ${url}
 and have fun :)
+
+Should you have any questions please feel free to reach out to us:
+MLGMOpRiskEGIT@erstegroup.com
+
+😎 👍
 `;
 
     Email.send({ to, from, subject, text });

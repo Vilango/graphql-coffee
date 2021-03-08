@@ -17,7 +17,7 @@ export const RecentOrders = () => {
       }
     ).fetch();
     const isLoading = !subscription.ready();
-    console.log("-", isLoading, recentOrders);
+    // console.log("-", isLoading, recentOrders);
     return { isLoading, recentOrders };
   });
 
@@ -41,7 +41,7 @@ export const RecentOrders = () => {
 
   return (
     <div>
-      <h2>{toggle ? "☕" : "🔥"} Recent orders</h2>
+      <h2>Recent orders {toggle ? "☕" : "🔥"} </h2>
       {isLoading ? Loading : RecentOrders}
     </div>
   );

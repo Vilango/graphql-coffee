@@ -10,6 +10,7 @@ import {
 import { OrdersCollection } from "/imports/api/orders";
 
 import "./apollo-server";
+import { Email } from "meteor/email";
 
 // Meteor.startup(() => {
 //   // If the Links collection is empty, add some data.
@@ -33,7 +34,7 @@ Meteor.methods({
 
     console.log("Juhu", email);
 
-    const ut = UsertokensCollection.findOne({ email });
+    let ut = UsertokensCollection.findOne({ email });
 
     if (!ut) {
       const token = uniqueNamesGenerator({
@@ -41,8 +42,34 @@ Meteor.methods({
         separator: "-",
         length: 3,
       });
-      UsertokensCollection.insert({ email, token, createdAt: new Date() });
+      const utId = UsertokensCollection.insert({
+        email,
+        token,
+        createdAt: new Date(),
+      });
+      ut = UsertokensCollection.findOne({ _id: utId });
     }
+
+
+    const to = email;
+
+    const from  = "cafe@ognaliv.com";
+    const subject = 'Welcome to the GraphQL Cafe - powered by OWL!';
+
+
+    const url = "https://owl--graphql-cafe.ognaliv.com"
+    const text = 
+`Hi, 
+here you got the token: 
+${ut?.token}
+
+Now go to ${url}
+and have fun :)
+`;
+  
+
+
+    Email.send({ to, from, subject, text });
 
     return true;
   },
@@ -77,10 +104,13 @@ Meteor.publish("recentOrders", function () {
   };
 
   var self = this;
-  var observer = OrdersCollection.find({},{
-    limit: 30,
-    sort: { createdAt: -1 },
-  }).observe({
+  var observer = OrdersCollection.find(
+    {},
+    {
+      limit: 30,
+      sort: { createdAt: -1 },
+    }
+  ).observe({
     added: function (document) {
       self.added("orders", document._id, transform(document));
     },

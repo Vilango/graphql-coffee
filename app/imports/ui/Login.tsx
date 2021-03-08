@@ -27,7 +27,7 @@ export const Login = () => {
     <p>To receive your usertoken please enter your email address below:</p>
     <form onSubmit={requestTokenWithEmail}>
       <label>
-        Name:
+        E-Mail&nbsp;
         <input
           type="text"
           value={email}

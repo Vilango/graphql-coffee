@@ -14,10 +14,10 @@ export const schema = gql`
     CAPUCCINO
     LATTE_MACCHIATO
     COLD_BREW
-    GREEN_TEE
-    JASMIN_TEE
-    BLACK_TEE
-    ICE_TEE
+    GREEN_TEA
+    JASMIN_TEA
+    BLACK_TEA
+    ICE_TEA
   }
 
   input OrderBeverageInput {

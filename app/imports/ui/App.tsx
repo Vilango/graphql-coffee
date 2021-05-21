@@ -4,7 +4,7 @@ import { RecentOrders } from './RecentOrders';
 
 export const App = () => (
   <div>
-    <h1>Welcome to the OWL GraphQL Cafe ☕</h1>
+    <h1>Welcome to the ViennaJS GraphQL Cafe ☕</h1>
     <Login />
     <RecentOrders />
   </div>

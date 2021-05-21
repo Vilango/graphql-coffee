@@ -61,7 +61,8 @@ Meteor.methods({
     const to = email;
 
     const from = "cafe@vilango.com";
-    const subject = "Welcome to the OWL GraphQL Cafe ☕";
+    const replyTo = "viennajs-graphql-cafe@vilango.com";
+    const subject = "Welcome to the ViennaJS GraphQL Cafe ☕";
 
     const url = Meteor.absoluteUrl("/graphql");
     const text = `Hi 👋,
@@ -73,12 +74,12 @@ Now go to ${url}
 and have fun :)
 
 Should you have any questions please feel free to reach out to us:
-MLGMOpRiskEGIT@erstegroup.com
+${replyTo}
 
 😎 👍
 `;
 
-    Email.send({ to, from, subject, text });
+    Email.send({ to, from, subject, text, replyTo });
 
     return true;
   },
